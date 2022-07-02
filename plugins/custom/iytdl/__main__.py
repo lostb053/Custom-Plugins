@@ -29,7 +29,7 @@ if userge.has_bot:
         return wrapper
 
 
-    ytdl = main.iYTDL.init(Config.LOG_CHANNEL_ID, download_path="userge/plugins/utils/iytdl/", silent=True, no_warnings=True)
+    ytdl = main.iYTDL.init(Config.LOG_CHANNEL_ID, download_path="userge/plugins/utils/iytdl/", silent=True)
 
     # https://gist.github.com/silentsokolov/f5981f314bc006c82a41
     regex = re.compile(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?(?P<id>[A-Za-z0-9\-=_]{11})')
