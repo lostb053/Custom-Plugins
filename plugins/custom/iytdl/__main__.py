@@ -149,12 +149,12 @@ if userge.has_bot:
                 format_ = "audio"
             else:
                 format_ = "video"
-            upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
             async with main.iYTDL(
                 Config.LOG_CHANNEL_ID,
                 download_path="userge/plugins/utils/iytdl/",
                 silent=True,
                 no_warnings=True,
             ) as ytdl:
+                upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
                 await ytdl.upload(userge.bot, upload_key, format_, cq, True)
                 await ytdl.stop()
