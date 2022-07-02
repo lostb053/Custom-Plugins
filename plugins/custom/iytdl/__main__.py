@@ -29,6 +29,8 @@ if userge.has_bot:
         return wrapper
 
 
+    ytdl = main.iYTDL.init(Config.LOG_CHANNEL_ID, download_path="userge/plugins/utils/iytdl/", silent=True, no_warnings=True)
+
     # https://gist.github.com/silentsokolov/f5981f314bc006c82a41
     regex = re.compile(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?(?P<id>[A-Za-z0-9\-=_]{11})')
     YT_DB = {}
@@ -149,12 +151,5 @@ if userge.has_bot:
                 format_ = "audio"
             else:
                 format_ = "video"
-            async with main.iYTDL(
-                Config.LOG_CHANNEL_ID,
-                download_path="userge/plugins/utils/iytdl/",
-                silent=True,
-                no_warnings=True,
-            ) as ytdl:
-                upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
-                await ytdl.upload(userge.bot, upload_key, format_, cq, True)
-                await ytdl.stop()
+            upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
+            await ytdl.upload(userge.bot, upload_key, format_, cq, True)
