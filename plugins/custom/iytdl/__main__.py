@@ -46,12 +46,16 @@ if userge.has_bot:
         'usage': "{tr}iytdl URL or Query"})
     async def iytdl_ub_cmd(m: Message):
         query = m.input_str
+        if not query:
+            return await m.reply("Nothing to search for")
         match = regex.match(query)
         if match is None:
             search_key = rand_key()
             YT_DB[search_key] = query
             search = await main.VideosSearch(query).next()
-            i = search['result'][0]        
+            if search["result"] == []:
+                return 
+            i = search['result'][0]
             out = f"<b><a href={i['link']}>{i['title']}</a></b>"
             out+=f"\nPublished {i['publishedTime']}\n"
             out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -70,17 +74,28 @@ if userge.has_bot:
                     ]
                 ]
             )
-            try:
-                await userge.bot.send_photo(m.chat.id, i["thumbnails"][1 if len(i["thumbnails"])>1 else 0]["url"].split("?")[0], caption=out, reply_markup=btn)
-            except MediaEmpty:
-                await userge.bot.send_photo(m.chat.id, "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67", caption=out, reply_markup=btn)
-
+            img = i["thumbnails"][1 if len(i["thumbnails"])>1 else 0]["url"].split("?")[0]
+            caption = out
+            markup = btn
         else:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
             rand = rand_key()
-            img = wget.download(x.image_url, out=f"{rand}.png")
-            await m.reply_photo(f"{rand}.png", caption=x.caption, reply_markup=x.buttons)
+            wget.download(x.image_url, out=f"{rand}.png")
+            img = f"{rand}.png"
+            caption=x.caption
+            markup=x.buttons
+        if m.client.is_bot:
+            try:
+                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+            except MediaEmpty:
+                img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+        else:
+            username = (await userge.bot.get_me()).username
+            x = await userge.get_inline_bot_results(username, f"ytdl {query}")
+            await userge.send_inline_bot_result(chat_id=m.chat.id, query_id=x.query_id, result_id=x.results[0].id)
+
 
 
     @userge.bot.on_callback_query(filters=filters.regex(pattern=r"ytdl_scroll\|(.*)"))
@@ -91,7 +106,7 @@ if userge.has_bot:
         page = int(callback[2])
         query = YT_DB[search_key]
         search = await main.VideosSearch(query).next()
-        i = search['result'][page]        
+        i = search['result'][page]
         out = f"<b><a href={i['link']}>{i['title']}</a></b>"
         out+=f"\nPublished {i['publishedTime']}\n"
         out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -100,27 +115,18 @@ if userge.has_bot:
         if i['descriptionSnippet']:
             for t in i['descriptionSnippet']:
                 out+=t['text']
+        scroll_btn = [
+            [
+                InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{page-1}"),
+                InlineKeyboardButton(f"{page+1}/{len(search['result'])}", callback_data=f"ytdl_scroll|{search_key}|{page+1}")
+            ]
+        ]
         if page==0:
             if len(search['result'])==1:
                 return await cq.answer("That's the end of list", show_alert=True)
-            scroll_btn = [
-                [
-                    InlineKeyboardButton(f"1/{len(search['result'])}", callback_data=f"ytdl_scroll|{search_key}|1")
-                ]
-            ]
+            scroll_btn.pop(0)
         elif page==len(search['result'])-1:
-            scroll_btn = [
-                [
-                    InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{len(search['result'])-2}")
-                ]
-            ]
-        else:
-            scroll_btn = [
-                [
-                    InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{page-1}"),
-                    InlineKeyboardButton(f"{page+1}/{len(search['result'])}", callback_data=f"ytdl_scroll|{search_key}|{page+1}")
-                ]
-            ]
+            scroll_btn.pop()
         btn = [
             [
                 InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
@@ -173,12 +179,12 @@ if userge.has_bot:
         match = regex.match(query)
         if match is None:
             search_key = rand_key()
-            YT_DB[search_key] = query    
+            YT_DB[search_key] = query
             i: list = (await main.VideosSearch(query=query).next())['result'][0]
             results = []
             key = i['id']
             img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
-            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"
             out = f"<b><a href={i['link']}>{i['title']}</a></b>"
             out+=f"\nPublished {i['publishedTime']}\n"
             out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -212,7 +218,7 @@ if userge.has_bot:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
             img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
-            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"
             if get(img).status_code != 200:
                 thumb = img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
             results = [
