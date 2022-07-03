@@ -228,12 +228,15 @@ if userge.has_bot:
         else:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
-            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"            
+            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
             if get(img).status_code != 200:
-                img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+                thumb = img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
             results = [
                 InlineQueryResultPhoto(
                     photo_url=img,
+                    thumb_url=thumb,
+                    title="Click to download",
                     caption=x.caption,
                     reply_markup=x.buttons,
                 )
