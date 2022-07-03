@@ -229,5 +229,5 @@ if userge.has_bot:
                     reply_markup=x.buttons,
                 )
             ]
-        await iq.answer(results=results, cache_time=3600, is_gallery=False, is_personal=True)
+        await iq.answer(results=results, is_gallery=False, is_personal=True)
         iq.stop_propagation()
