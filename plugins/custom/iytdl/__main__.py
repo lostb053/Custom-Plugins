@@ -48,49 +48,49 @@ if userge.has_bot:
         query = m.input_str
         if not query:
             return await m.reply("Nothing to search for")
-        match = regex.match(query)
-        if match is None:
-            search_key = rand_key()
-            YT_DB[search_key] = query
-            search = await main.VideosSearch(query).next()
-            if search["result"] == []:
-                return 
-            i = search['result'][0]
-            out = f"<b><a href={i['link']}>{i['title']}</a></b>"
-            out+=f"\nPublished {i['publishedTime']}\n"
-            out+=f"\n<b>❯ Duration:</b> {i['duration']}"
-            out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
-            out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
-            if i['descriptionSnippet']:
-                for t in i['descriptionSnippet']:
-                    out+=t['text']
-            btn = InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton(f"1/{len(search['result'])}", callback_data=f"ytdl_scroll|{search_key}|1")
-                    ],
-                    [
-                        InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
-                    ]
-                ]
-            )
-            img = i["thumbnails"][1 if len(i["thumbnails"])>1 else 0]["url"].split("?")[0]
-            caption = out
-            markup = btn
-        else:
-            key = match.group("id")
-            x = await main.Extractor().get_download_button(key)
-            rand = rand_key()
-            wget.download(x.image_url, out=f"{rand}.png")
-            img = f"{rand}.png"
-            caption=x.caption
-            markup=x.buttons
         if m.client.is_bot:
-            try:
-                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
-            except MediaEmpty:
-                img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
-                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+            match = regex.match(query)
+            if match is None:
+                search_key = rand_key()
+                YT_DB[search_key] = query
+                search = await main.VideosSearch(query).next()
+                if search["result"] == []:
+                    return 
+                i = search['result'][0]
+                out = f"<b><a href={i['link']}>{i['title']}</a></b>"
+                out+=f"\nPublished {i['publishedTime']}\n"
+                out+=f"\n<b>❯ Duration:</b> {i['duration']}"
+                out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
+                out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
+                if i['descriptionSnippet']:
+                    for t in i['descriptionSnippet']:
+                        out+=t['text']
+                btn = InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(f"1/{len(search['result'])}", callback_data=f"ytdl_scroll|{search_key}|1")
+                        ],
+                        [
+                            InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
+                        ]
+                    ]
+                )
+                img = i["thumbnails"][1 if len(i["thumbnails"])>1 else 0]["url"].split("?")[0]
+                caption = out
+                markup = btn
+            else:
+                key = match.group("id")
+                x = await main.Extractor().get_download_button(key)
+                rand = rand_key()
+                wget.download(x.image_url, out=f"{rand}.png")
+                img = f"{rand}.png"
+                caption=x.caption
+                markup=x.buttons
+                try:
+                    await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+                except MediaEmpty:
+                    img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+                    await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
         else:
             username = (await userge.bot.get_me()).username
             x = await userge.get_inline_bot_results(username, f"ytdl {query}")
