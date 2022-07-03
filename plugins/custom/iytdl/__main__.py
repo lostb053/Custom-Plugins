@@ -57,7 +57,7 @@ if userge.has_bot:
             out+=f"\n<b>❯ Duration:</b> {i['duration']}"
             out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
             out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
-            if i['descrjkm, gviptionSnippet']:
+            if i['descriptionSnippet']:
                 for t in i['descriptionSnippet']:
                     out+=t['text']
             btn = InlineKeyboardMarkup(
@@ -162,7 +162,7 @@ if userge.has_bot:
             lambda _, __, inline_query: (
                 inline_query.query
                 and inline_query.query.startswith("ytdl ")
-                and inline_query.from_user.id in (int(Config.OWNER_ID) + int(sudo.USERS))
+                and inline_query.from_user.id in (list(Config.OWNER_ID) + list(sudo.USERS))
             ),
             name="iYTDL"
         ),
