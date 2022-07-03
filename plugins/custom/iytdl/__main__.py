@@ -216,7 +216,7 @@ if userge.has_bot:
                     btn = InlineKeyboardMarkup(btn)
                 results.append(
                     InlineQueryResultPhoto(
-                        photo_url=i['thumnail'][0]["url"].split("?")[0],
+                        photo_url=i['thumbnail'][0]["url"].split("?")[0],
                         title=i['title'],
                         caption=out,
                         parse_mode=ParseMode.HTML,
