@@ -168,7 +168,7 @@ if userge.has_bot:
         ),
     )
     async def iytdl_inline(client: Client, iq: InlineQuery):
-        query = iq.query.split("", 1)[1]
+        query = iq.query.split("ytdl ", 1)[1]
         match = regex.match(query)
         if match is None:
             search_key = rand_key()
