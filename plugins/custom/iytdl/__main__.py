@@ -82,7 +82,7 @@ if userge.has_bot:
                 key = match.group("id")
                 x = await main.Extractor().get_download_button(key)
                 rand = rand_key()
-                wget.download(x.image_url, out=f"{rand}.png")
+                novar = wget.download(x.image_url, out=f"{rand}.png") # var to ensure that it completes download
                 img = f"{rand}.png"
                 caption=x.caption
                 markup=x.buttons
