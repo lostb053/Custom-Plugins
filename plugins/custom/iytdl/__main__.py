@@ -177,12 +177,10 @@ if userge.has_bot:
             search_data: list = (await main.VideosSearch(query=query).next())['result']
             results = []
             for n, i in enumerate(search_data):
-                await iq.continue_propagation()
+                iq.continue_propagation()
                 key = search_data['id']
                 img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
                 thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
-                if get(img).status_code != 200:
-                    thumb = img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
                 out = f"<b><a href={i['link']}>{i['title']}</a></b>"
                 out+=f"\nPublished {i['publishedTime']}\n"
                 out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -191,42 +189,30 @@ if userge.has_bot:
                 if i['descriptionSnippet']:
                     for t in i['descriptionSnippet']:
                         out+=t['text']
+                scroll_btn = [
+                    [
+                        InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{n-1}"),
+                        InlineKeyboardButton(f"{n+1}/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
+                    ]
+                ]
                 if n==0:
+                    scroll_btn.pop(0)
                     if len(search_data)==1:
-                        scroll_btn = None
-                    scroll_btn = [
-                        [
-                            InlineKeyboardButton(f"1/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|1")
-                        ]
-                    ]
-                elif n==len(search_data)-1:
-                    scroll_btn = [
-                        [
-                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{len(search_data)-2}")
-                        ]
-                    ]
-                else:
-                    scroll_btn = [
-                        [
-                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{n-1}"),
-                            InlineKeyboardButton(f"{n+1}/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
-                        ]
-                    ]
+                        scroll_btn = []
+                elif n==(len(search_data)-1):
+                    scroll_btn.pop()
                 btn = [
                     [
                         InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
                     ]
                 ]
-                if scroll_btn:
-                    btn = InlineKeyboardMarkup(scroll_btn+btn)
-                else:
-                    btn = InlineKeyboardMarkup(btn)
+                btn = InlineKeyboardMarkup(scroll_btn+btn)
                 results.append(
                     InlineQueryResultPhoto(
                         photo_url=img,
                         thumb_url=thumb,
                         caption=out,
-                        reply_markup=btn
+                        reply_markup=btn,
                     )
                 )
         else:
@@ -244,5 +230,5 @@ if userge.has_bot:
                     reply_markup=x.buttons,
                 )
             ]
-        await iq.answer(results=results, cache_time=3600)
-        await iq.stop_propagation()
+        await iq.answer(results=results, cache_time=3600, is_gallery=False, is_personal=True)
+        iq.stop_propagation()
