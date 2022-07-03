@@ -189,14 +189,14 @@ if userge.has_bot:
                     out+=t['text']
             scroll_btn = [
                 [
-                    InlineKeyboardButton(f"1/{len(1)}", callback_data=f"ytdl_scroll|{search_key}|1")
+                    InlineKeyboardButton(f"1/{len(i)}", callback_data=f"ytdl_scroll|{search_key}|1")
                 ]
             ]
             if len(i)==1:
                 scroll_btn = []
             btn = [
                 [
-                    InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
+                    InlineKeyboardButton("Download", callback_data=f"yt_gen|{key}")
                 ]
             ]
             btn = InlineKeyboardMarkup(scroll_btn+btn)
