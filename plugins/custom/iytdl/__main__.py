@@ -174,47 +174,40 @@ if userge.has_bot:
         if match is None:
             search_key = rand_key()
             YT_DB[search_key] = query    
-            search_data: list = (await main.VideosSearch(query=query).next())['result']
+            i: list = (await main.VideosSearch(query=query).next())['result'][0]
             results = []
-            for n, i in enumerate(search_data):
-                iq.continue_propagation()
-                key = search_data['id']
-                img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
-                thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
-                out = f"<b><a href={i['link']}>{i['title']}</a></b>"
-                out+=f"\nPublished {i['publishedTime']}\n"
-                out+=f"\n<b>❯ Duration:</b> {i['duration']}"
-                out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
-                out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
-                if i['descriptionSnippet']:
-                    for t in i['descriptionSnippet']:
-                        out+=t['text']
-                scroll_btn = [
-                    [
-                        InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{n-1}"),
-                        InlineKeyboardButton(f"{n+1}/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
-                    ]
+            key = i['id']
+            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
+            out = f"<b><a href={i['link']}>{i['title']}</a></b>"
+            out+=f"\nPublished {i['publishedTime']}\n"
+            out+=f"\n<b>❯ Duration:</b> {i['duration']}"
+            out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
+            out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
+            if i['descriptionSnippet']:
+                for t in i['descriptionSnippet']:
+                    out+=t['text']
+            scroll_btn = [
+                [
+                    InlineKeyboardButton(f"1/{len(1)}", callback_data=f"ytdl_scroll|{search_key}|1")
                 ]
-                if n==0:
-                    scroll_btn.pop(0)
-                    if len(search_data)==1:
-                        scroll_btn = []
-                elif n==(len(search_data)-1):
-                    scroll_btn.pop()
-                btn = [
-                    [
-                        InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
-                    ]
+            ]
+            if len(i)==1:
+                scroll_btn = []
+            btn = [
+                [
+                    InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
                 ]
-                btn = InlineKeyboardMarkup(scroll_btn+btn)
-                results.append(
-                    InlineQueryResultPhoto(
-                        photo_url=img,
-                        thumb_url=thumb,
-                        caption=out,
-                        reply_markup=btn,
-                    )
+            ]
+            btn = InlineKeyboardMarkup(scroll_btn+btn)
+            results.append(
+                InlineQueryResultPhoto(
+                    photo_url=img,
+                    thumb_url=thumb,
+                    caption=out,
+                    reply_markup=btn,
                 )
+            )
         else:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
