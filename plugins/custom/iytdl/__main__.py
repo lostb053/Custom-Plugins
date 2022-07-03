@@ -146,12 +146,7 @@ if userge.has_bot:
         key = callback[1]
         if callback[0]=="yt_gen":
             x = await main.Extractor().get_download_button(key)
-            rand = rand_key()
-            img = wget.download(x.image_url, out=f"{rand}.png")
-            try:
-                await cq.edit_message_media(InputMediaPhoto(img, caption=x.caption), reply_markup=x.buttons)
-            except:
-                await cq.edit_message_media(InputMediaPhoto("https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67", caption=x.caption), reply_markup=x.buttons)
+            await cq.edit_message_caption(caption=x.caption, reply_markup=x.buttons)
         else:
             uid = callback[2]
             type_ = callback[3]
@@ -161,3 +156,73 @@ if userge.has_bot:
                 format_ = "video"
             upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
             await ytdl.upload(userge.bot, upload_key, format_, cq, True)
+    
+    
+    @userge.bot.on_inline_query(
+        filters.create(
+            lambda _, __, inline_query: (
+                inline_query.query
+                and inline_query.query.startswith("ytdl ")
+                and inline_query.from_user.id in (list(Config.OWNER_ID) + list(sudo.USERS))
+            ),
+            name="iYTDL"
+        ),
+        group=-2
+    )
+    async def iytdl_inline(client: Client, iq: InlineQuery):
+        query = iq.query.split("ytdl ", 1)[1]
+        match = regex.match(query)
+        if match is None:
+            search_key = rand_key()
+            YT_DB[search_key] = query
+            i: list = (await main.VideosSearch(query=query).next())['result'][0]
+            results = []
+            key = i['id']
+            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"
+            out = f"<b><a href={i['link']}>{i['title']}</a></b>"
+            out+=f"\nPublished {i['publishedTime']}\n"
+            out+=f"\n<b>❯ Duration:</b> {i['duration']}"
+            out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
+            out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
+            if i['descriptionSnippet']:
+                for t in i['descriptionSnippet']:
+                    out+=t['text']
+            scroll_btn = [
+                [
+                    InlineKeyboardButton(f"1/{len(i)}", callback_data=f"ytdl_scroll|{search_key}|1")
+                ]
+            ]
+            if len(i)==1:
+                scroll_btn = []
+            btn = [
+                [
+                    InlineKeyboardButton("Download", callback_data=f"yt_gen|{key}")
+                ]
+            ]
+            btn = InlineKeyboardMarkup(scroll_btn+btn)
+            results.append(
+                InlineQueryResultPhoto(
+                    photo_url=img,
+                    thumb_url=thumb,
+                    caption=out,
+                    reply_markup=btn,
+                )
+            )
+        else:
+            key = match.group("id")
+            x = await main.Extractor().get_download_button(key)
+            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
+            thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"
+            if get(img).status_code != 200:
+                thumb = img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+            results = [
+                InlineQueryResultPhoto(
+                    photo_url=img,
+                    thumb_url=thumb,
+                    caption=x.caption,
+                    reply_markup=x.buttons,
+                )
+            ]
+        await iq.answer(results=results, is_gallery=False, is_personal=True)
+        iq.stop_propagation()
