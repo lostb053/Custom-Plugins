@@ -176,6 +176,7 @@ if userge.has_bot:
             search_data: list = (await main.VideosSearch(query=query).next())['result']
             results = []
             for n, i in enumerate(search_data):
+                await iq.continue_propagation()
                 out = f"<b><a href={i['link']}>{i['title']}</a></b>"
                 out+=f"\nPublished {i['publishedTime']}\n"
                 out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -218,12 +219,12 @@ if userge.has_bot:
                     InlineQueryResultPhoto(
                         photo_url=i['thumbnails'][0]["url"].split("?")[0],
                         title=i['title'],
+                        description="Click to Download",
                         caption=out,
-                        parse_mode=ParseMode.HTML,
                         reply_markup=btn
                     )
                 )
-            await iq.answer(results=results)
+            await iq.answer(results=results, cache_time=3600)
         else:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
@@ -236,6 +237,6 @@ if userge.has_bot:
                     photo_url=img,
                     caption=x.caption,
                     reply_markup=x.buttons,
-                    parse_mode=ParseMode.HTML
                 )
             ]
+        await iq.stop_propagation()
