@@ -1,10 +1,12 @@
 import re
 from pyrogram.types.bots_and_keyboards import reply_keyboard_markup
+from requests import get
 import wget
 from uuid import uuid4
 from pyrogram import Client, filters
 from pyrogram.errors import MediaEmpty, MessageIdInvalid, MessageNotModified
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto, InlineQuery, InlineQueryResultPhoto, InputMessageContent
+from pyrogram.enums import ParseMode
 from userge import Message, config as Config, userge
 from iytdl import main
 from ...builtin import sudo
@@ -29,7 +31,7 @@ if userge.has_bot:
         return wrapper
 
 
-    ytdl = main.iYTDL.init(Config.LOG_CHANNEL_ID, download_path="userge/plugins/utils/iytdl/", silent=True)
+    ytdl = main.iYTDL(Config.LOG_CHANNEL_ID, download_path="userge/plugins/utils/iytdl/", silent=True)
 
     # https://gist.github.com/silentsokolov/f5981f314bc006c82a41
     regex = re.compile(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?(?P<id>[A-Za-z0-9\-=_]{11})')
@@ -55,7 +57,7 @@ if userge.has_bot:
             out+=f"\n<b>❯ Duration:</b> {i['duration']}"
             out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
             out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
-            if i['descriptionSnippet']:
+            if i['descrjkm, gviptionSnippet']:
                 for t in i['descriptionSnippet']:
                     out+=t['text']
             btn = InlineKeyboardMarkup(
@@ -153,3 +155,87 @@ if userge.has_bot:
                 format_ = "video"
             upload_key = await ytdl.download("https://www.youtube.com/watch?v="+key, uid, format_, cq, True, 3)
             await ytdl.upload(userge.bot, upload_key, format_, cq, True)
+
+
+    @userge.bot.on_inline_query(
+        filters.create(
+            lambda _, __, inline_query: (
+                inline_query.query
+                and inline_query.query.startswith("ytdl ")
+                and inline_query.from_user.id in (int(Config.OWNER_ID) + int(sudo.USERS))
+            ),
+            name="iYTDL"
+        ),
+    )
+    async def iytdl_inline(client: Client, iq: InlineQuery):
+        query = iq.query.split("", 1)[1]
+        match = regex.match(query)
+        if match is None:
+            search_key = rand_key()
+            YT_DB[search_key] = query    
+            search_data: list = (await main.VideosSearch(query=query).next())['result']
+            results = []
+            for n, i in enumerate(search_data):
+                out = f"<b><a href={i['link']}>{i['title']}</a></b>"
+                out+=f"\nPublished {i['publishedTime']}\n"
+                out+=f"\n<b>❯ Duration:</b> {i['duration']}"
+                out+=f"\n<b>❯ Views:</b> {i['viewCount']['short']}"
+                out+=f"\n<b>❯ Uploader:</b> <a href={i['channel']['link']}>{i['channel']['name']}</a>\n\n"
+                if i['descriptionSnippet']:
+                    for t in i['descriptionSnippet']:
+                        out+=t['text']
+                if n==0:
+                    if len(search_data['result'])==1:
+                        scroll_btn = None
+                    scroll_btn = [
+                        [
+                            InlineKeyboardButton(f"1/{len(search_data['result'])}", callback_data=f"ytdl_scroll|{search_key}|1")
+                        ]
+                    ]
+                elif n==len(search_data['result'])-1:
+                    scroll_btn = [
+                        [
+                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{len(search_data['result'])-2}")
+                        ]
+                    ]
+                else:
+                    scroll_btn = [
+                        [
+                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{n-1}"),
+                            InlineKeyboardButton(f"{n+1}/{len(search_data['result'])}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
+                        ]
+                    ]
+                btn = [
+                    [
+                        InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
+                    ]
+                ]
+                if scroll_btn:
+                    btn = InlineKeyboardMarkup(scroll_btn+btn)
+                else:
+                    btn = InlineKeyboardMarkup(btn)
+                results.append(
+                    InlineQueryResultPhoto(
+                        photo_url=i['thumnail'][0]["url"].split("?")[0],
+                        title=i['title'],
+                        caption=out,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=btn
+                    )
+                )
+            await iq.answer(results=results)
+        else:
+            key = match.group("id")
+            x = await main.Extractor().get_download_button(key)
+            rand = rand_key()
+            img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"            
+            if get(img).status_code != 200:
+                img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+            result = [
+                InlineQueryResultPhoto(
+                    photo_url=img,
+                    caption=x.caption,
+                    reply_markup=x.buttons,
+                    parse_mode=ParseMode.HTML
+                )
+            ]
