@@ -178,6 +178,11 @@ if userge.has_bot:
             results = []
             for n, i in enumerate(search_data):
                 await iq.continue_propagation()
+                key = search_data['id']
+                img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"
+                thumb = f"https://i.ytimg.com/vi/{key}/default.jpg"            
+                if get(img).status_code != 200:
+                    thumb = img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
                 out = f"<b><a href={i['link']}>{i['title']}</a></b>"
                 out+=f"\nPublished {i['publishedTime']}\n"
                 out+=f"\n<b>❯ Duration:</b> {i['duration']}"
@@ -218,9 +223,8 @@ if userge.has_bot:
                     btn = InlineKeyboardMarkup(btn)
                 results.append(
                     InlineQueryResultPhoto(
-                        photo_url=i['thumbnails'][0]["url"].split("?")[0],
-                        title=i['title'],
-                        description="Click to Download",
+                        photo_url=img,
+                        thumb_url=thumb,
                         caption=out,
                         reply_markup=btn
                     )
@@ -236,7 +240,6 @@ if userge.has_bot:
                 InlineQueryResultPhoto(
                     photo_url=img,
                     thumb_url=thumb,
-                    description="Click to download",
                     caption=x.caption,
                     reply_markup=x.buttons,
                 )
