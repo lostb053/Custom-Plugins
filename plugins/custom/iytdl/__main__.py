@@ -185,24 +185,24 @@ if userge.has_bot:
                     for t in i['descriptionSnippet']:
                         out+=t['text']
                 if n==0:
-                    if len(search_data['result'])==1:
+                    if len(search_data)==1:
                         scroll_btn = None
                     scroll_btn = [
                         [
-                            InlineKeyboardButton(f"1/{len(search_data['result'])}", callback_data=f"ytdl_scroll|{search_key}|1")
+                            InlineKeyboardButton(f"1/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|1")
                         ]
                     ]
-                elif n==len(search_data['result'])-1:
+                elif n==len(search_data)-1:
                     scroll_btn = [
                         [
-                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{len(search_data['result'])-2}")
+                            InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{len(search_data)-2}")
                         ]
                     ]
                 else:
                     scroll_btn = [
                         [
                             InlineKeyboardButton(f"Back", callback_data=f"ytdl_scroll|{search_key}|{n-1}"),
-                            InlineKeyboardButton(f"{n+1}/{len(search_data['result'])}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
+                            InlineKeyboardButton(f"{n+1}/{len(search_data)}", callback_data=f"ytdl_scroll|{search_key}|{n+1}")
                         ]
                     ]
                 btn = [
