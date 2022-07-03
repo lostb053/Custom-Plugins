@@ -124,9 +124,9 @@ if userge.has_bot:
         if page==0:
             if len(search['result'])==1:
                 return await cq.answer("That's the end of list", show_alert=True)
-            scroll_btn = [scroll_btn.pop().pop(0)]
+            scroll_btn = [[scroll_btn.pop().pop()]]
         elif page==(len(search['result'])-1):
-            scroll_btn = [scroll_btn.pop().pop()]
+            scroll_btn = [[scroll_btn.pop().pop(0)]]
         btn = [
             [
                 InlineKeyboardButton("Download", callback_data=f"yt_gen|{i['id']}")
