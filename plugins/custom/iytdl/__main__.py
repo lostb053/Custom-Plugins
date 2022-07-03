@@ -166,6 +166,7 @@ if userge.has_bot:
             ),
             name="iYTDL"
         ),
+        group=-2
     )
     async def iytdl_inline(client: Client, iq: InlineQuery):
         query = iq.query.split("ytdl ", 1)[1]
@@ -224,19 +225,18 @@ if userge.has_bot:
                         reply_markup=btn
                     )
                 )
-            await iq.answer(results=results, cache_time=3600)
         else:
             key = match.group("id")
             x = await main.Extractor().get_download_button(key)
-            rand = rand_key()
             img = f"https://i.ytimg.com/vi/{key}/maxresdefault.jpg"            
             if get(img).status_code != 200:
                 img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
-            result = [
+            results = [
                 InlineQueryResultPhoto(
                     photo_url=img,
                     caption=x.caption,
                     reply_markup=x.buttons,
                 )
             ]
+        await iq.answer(results=results, cache_time=3600)
         await iq.stop_propagation()
