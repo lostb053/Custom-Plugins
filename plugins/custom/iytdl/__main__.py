@@ -86,11 +86,11 @@ if userge.has_bot:
                 img = f"{rand}.png"
                 caption=x.caption
                 markup=x.buttons
-                try:
-                    await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
-                except MediaEmpty:
-                    img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
-                    await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+            try:
+                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
+            except MediaEmpty:
+                img = "https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67"
+                await userge.bot.send_photo(m.chat.id, img, caption=caption, reply_markup=markup)
         else:
             username = (await userge.bot.get_me()).username
             x = await userge.get_inline_bot_results(username, f"ytdl {query}")
@@ -125,7 +125,7 @@ if userge.has_bot:
             if len(search['result'])==1:
                 return await cq.answer("That's the end of list", show_alert=True)
             scroll_btn.pop(0)
-        elif page==len(search['result'])-1:
+        elif page==(len(search['result'])-1):
             scroll_btn.pop()
         btn = [
             [
@@ -149,8 +149,8 @@ if userge.has_bot:
             rand = rand_key()
             img = wget.download(x.image_url, out=f"{rand}.png")
             try:
-                await cq.edit_message_media(InputMediaPhoto(f"{rand}.png", caption=x.caption), reply_markup=x.buttons)
-            except MediaEmpty:
+                await cq.edit_message_media(InputMediaPhoto(img, caption=x.caption), reply_markup=x.buttons)
+            except:
                 await cq.edit_message_media(InputMediaPhoto("https://camo.githubusercontent.com/8486ea960b794cefdbbba0a8ef698d04874152c8e24b3b26adf7f50847d4a3a8/68747470733a2f2f692e696d6775722e636f6d2f51393443444b432e706e67", caption=x.caption), reply_markup=x.buttons)
         else:
             uid = callback[2]
