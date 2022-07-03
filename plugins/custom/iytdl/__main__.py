@@ -236,7 +236,7 @@ if userge.has_bot:
                 InlineQueryResultPhoto(
                     photo_url=img,
                     thumb_url=thumb,
-                    title="Click to download",
+                    description="Click to download",
                     caption=x.caption,
                     reply_markup=x.buttons,
                 )
