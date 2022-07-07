@@ -19,8 +19,10 @@ if userge.has_bot:
                 except MessageNotModified:
                     await c_q.answer("Nothing Found to Refresh 🤷‍♂️", show_alert=True)
                 except MessageIdInvalid:
-                    await c_q.answer("Sorry, I Don't Have Permissions to edit this 😔",
-                                     show_alert=True)
+                    await c_q.answer(
+                        "Sorry, I Don't Have Permissions to edit this 😔",
+                        show_alert=True
+                    )
             else:
                 user_dict = await userge.bot.get_user_dict(Config.OWNER_ID[0])
                 await c_q.answer(
@@ -29,7 +31,7 @@ if userge.has_bot:
         return wrapper
 
 
-    ytdl = main.iYTDL(Config.LOG_CHANNEL_ID, download_path="userge/plugins/custom/iytdl/", silent=True)
+    ytdl = main.iYTDL(Config.LOG_CHANNEL_ID, download_path="userge/plugins/custom/iytdl/", silent=True, no_warnings=True)
 
     # https://gist.github.com/silentsokolov/f5981f314bc006c82a41
     regex = re.compile(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?(?P<id>[A-Za-z0-9\-=_]{11})')
