@@ -1,12 +1,10 @@
 import re
-from pyrogram.types.bots_and_keyboards import reply_keyboard_markup
 from requests import get
 import wget
 from uuid import uuid4
 from pyrogram import Client, filters
 from pyrogram.errors import MediaEmpty, MessageIdInvalid, MessageNotModified
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto, InlineQuery, InlineQueryResultPhoto, InputMessageContent
-from pyrogram.enums import ParseMode
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto, InlineQuery, InlineQueryResultPhoto
 from userge import Message, config as Config, userge
 from iytdl import main
 from ...builtin import sudo
